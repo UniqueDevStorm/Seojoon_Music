@@ -13,7 +13,7 @@ class Bot(commands.AutoShardedBot):
         AutoCogs(self)
 
     async def on_ready(self):
-        print(f"{str(self.user)} on Ready.")
+        print(f"{self.user} on Ready.")
 
 
 bot = Bot()
