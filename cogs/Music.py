@@ -115,6 +115,20 @@ class Music(commands.Cog):
         if not player.is_playing:
             await player.play()
 
+    @commands.command(aliases=['dc', 'stop'])
+    async def disconnect(self, ctx):
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+
+        if not player.is_connected:
+            return await ctx.reply('재생하고 있지 않습니다.')
+
+        if not ctx.author.voice or (player.is_connected and ctx.author.voice.channel.id != int(player.channel_id)):
+            return await ctx.reply('제 보이스채널에 들어와있지 않습니다.')
+
+        player.queue.clear()
+        await player.stop()
+        await ctx.guild.change_voice_state(channel=None)
+        await ctx.reply('*⃣ | 연결 해제.')
 
 def setup(bot: AutoShardedBot):
     bot.add_cog(Music(bot))
