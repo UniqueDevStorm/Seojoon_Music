@@ -7,6 +7,7 @@ import re
 import lavalink
 from dotenv import load_dotenv
 import os
+import time
 
 load_dotenv(verbose=True)
 BOTID = int(os.getenv('BOTID'))
@@ -71,7 +72,7 @@ class Music(commands.Cog):
         results = await player.node.get_tracks(query)
 
         if not results or not results['tracks']:
-            return await ctx.send('곡을 찾을수 없습니다.')
+            return await ctx.reply('곡을 찾을수 없습니다.')
 
         embed = discord.Embed(color=discord.Color.blurple())
 
@@ -82,13 +83,29 @@ class Music(commands.Cog):
                 player.add(requester=ctx.author.id, track=track)
 
             embed.title = '플레이리스트 적용 완료!'
-            embed.description = f'{results["playlistInfo"]["name"]} - {len(tracks)} tracks'
+            embed.add_field(
+                name='타이틀',
+                value=f'{results["playlistInfo"]["name"]} - {len(tracks)} tracks'
+            )
             embed.set_image(url=f'https://i.ytimg.com/vi/{tracks["info"]["identifier"]}/hqdefault.jpg')
+            embed.add_field(
+                name='시간',
+                value=lavalink.utils.format_time(tracks['info']['length']),
+                inline=False
+            )
         else:
             track = results['tracks'][0]
             embed.title = '플레이리스트 추가 완료!'
-            embed.description = f'[{track["info"]["title"]}]({track["info"]["uri"]})'
+            embed.add_field(
+                name='타이틀',
+                value=f'[{track["info"]["title"]}]({track["info"]["uri"]})'
+            )
             embed.set_image(url=f'https://i.ytimg.com/vi/{track["info"]["identifier"]}/hqdefault.jpg')
+            embed.add_field(
+                name='시간',
+                value=lavalink.utils.format_time(track['info']['length']),
+                inline=False
+            )
 
             track = lavalink.models.AudioTrack(track, ctx.author.id)
             player.add(requester=ctx.author.id, track=track)
@@ -97,7 +114,6 @@ class Music(commands.Cog):
 
         if not player.is_playing:
             await player.play()
-
 
 
 def setup(bot: AutoShardedBot):
